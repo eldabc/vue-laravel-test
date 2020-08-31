@@ -1955,6 +1955,20 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1965,9 +1979,16 @@ __webpack_require__.r(__webpack_exports__);
       }
     };
   },
+  created: function created() {
+    var _this = this;
+
+    axios.get('/notas').then(function (res) {
+      _this.notas = res.data;
+    });
+  },
   methods: {
     agregar: function agregar() {
-      var _this = this;
+      var _this2 = this;
 
       if (this.nota.nombre.trim() === '' || this.nota.descripcion.trim() === '') {
         alert('Debes completar todos los campos antes de guardar');
@@ -1982,7 +2003,14 @@ __webpack_require__.r(__webpack_exports__);
       this.nota.nombre = '';
       this.nota.descripcion = '';
       axios.post('/notas', params).then(function (res) {
-        _this.notas.push(res.data);
+        _this2.notas.push(res.data);
+      });
+    },
+    eliminarNota: function eliminarNota(item, index) {
+      var _this3 = this;
+
+      axios["delete"]("/notas/".concat(item.id)).then(function () {
+        _this3.notas.splice(index, 1);
       });
     }
   }
@@ -37681,6 +37709,40 @@ var render = function() {
           [_vm._v("Agregar")]
         )
       ]
+    ),
+    _vm._v(" "),
+    _c("hr", { staticClass: "mt-3" }),
+    _vm._v(" "),
+    _c("h3", [_vm._v("Listado de NOTAS")]),
+    _vm._v(" "),
+    _c(
+      "ul",
+      { staticClass: "list-group" },
+      _vm._l(_vm.notas, function(item, index) {
+        return _c("li", { key: index, staticClass: "list-group-item" }, [
+          _c("span", { staticClass: "badge badge-primary float-right" }, [
+            _vm._v("\n\t\t\t\t" + _vm._s(item.updated_at) + "\n\t\t\t")
+          ]),
+          _vm._v(" "),
+          _c("p", [_vm._v(_vm._s(item.nombre))]),
+          _vm._v(" "),
+          _c("p", [_vm._v(_vm._s(item.descripcion))]),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-danger btn-sm",
+              on: {
+                click: function($event) {
+                  return _vm.eliminarNota(item, index)
+                }
+              }
+            },
+            [_vm._v("Eliminar")]
+          )
+        ])
+      }),
+      0
     )
   ])
 }

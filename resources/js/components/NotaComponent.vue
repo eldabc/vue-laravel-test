@@ -10,6 +10,20 @@
 
 			<button class="btn btn-primary" type="submit">Agregar</button>
 		</form>
+		<hr class="mt-3">
+		<h3>Listado de NOTAS</h3>
+		<ul class="list-group">
+			<li class="list-group-item"
+			v-for="(item, index) in notas" :key="index">
+				<span class="badge badge-primary float-right">
+					{{item.updated_at}}
+				</span>
+				<p>{{item.nombre}}</p>
+				<p>{{item.descripcion}}</p>
+				<button class="btn btn-danger btn-sm"
+				@click="eliminarNota(item, index)">Eliminar</button>
+			</li>
+		</ul>
 	</div>
 </template>
 <script>
@@ -19,6 +33,12 @@ export default{
 			notas: [],
 			nota: { nombre: '', descripcion: '' }
 		}
+	},
+	created(){
+		axios.get('/notas')
+		.then(res => {
+				this.notas = res.data
+			})
 	},
 	methods:{
 		agregar(){
@@ -40,6 +60,12 @@ export default{
 			.then(res => {
 				this.notas.push(res.data)
 			});
+		},
+		eliminarNota(item, index){
+			axios.delete(`/notas/${item.id}`)
+			.then(() => {
+				this.notas.splice(index, 1);
+			})
 		}
 	}
 	
