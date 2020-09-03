@@ -1969,6 +1969,23 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -1976,7 +1993,8 @@ __webpack_require__.r(__webpack_exports__);
       nota: {
         nombre: '',
         descripcion: ''
-      }
+      },
+      editarActivo: false
     };
   },
   created: function created() {
@@ -2006,11 +2024,51 @@ __webpack_require__.r(__webpack_exports__);
         _this2.notas.push(res.data);
       });
     },
-    eliminarNota: function eliminarNota(item, index) {
+    editarFormulario: function editarFormulario(item) {
+      editarActivo: true;
+
+      this.nota.nombre = item.nombre;
+      this.nota.descripcion = item.descripcion;
+      this.nota.id = item.id;
+      this.editarActivo = true;
+    },
+    editarNota: function editarNota(nota) {
       var _this3 = this;
 
+      var params = {
+        nombre: nota.nombre,
+        descripcion: nota.descripcion
+      };
+      axios.put("/notas/".concat(nota.id), params).then(function (res) {
+        _this3.editarActivo = false;
+
+        var index = _this3.notas.findIndex(function (item) {
+          return item.id === nota.id;
+        }); // this.notas[index] = res.data;
+        // 
+
+
+        _this3.nota = {
+          nombres: '',
+          descripcion: ''
+        };
+        axios.get('/notas').then(function (res) {
+          _this3.notas = res.data;
+        });
+      });
+    },
+    cancelarEdicion: function cancelarEdicion() {
+      this.editarActivo = false;
+      this.nota = {
+        nombres: '',
+        descripcion: ''
+      };
+    },
+    eliminarNota: function eliminarNota(item, index) {
+      var _this4 = this;
+
       axios["delete"]("/notas/".concat(item.id)).then(function () {
-        _this3.notas.splice(index, 1);
+        _this4.notas.splice(index, 1);
       });
     }
   }
@@ -37646,70 +37704,149 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("h3", [_vm._v("Agregar Tareas")]),
-    _vm._v(" "),
-    _c(
-      "form",
-      {
-        on: {
-          submit: function($event) {
-            $event.preventDefault()
-            return _vm.agregar($event)
-          }
-        }
-      },
-      [
-        _c("input", {
-          directives: [
-            {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.nota.nombre,
-              expression: "nota.nombre"
-            }
-          ],
-          staticClass: "form-control mb-2",
-          attrs: { type: "text", placeholder: "Nombre" },
-          domProps: { value: _vm.nota.nombre },
-          on: {
-            input: function($event) {
-              if ($event.target.composing) {
-                return
+    _vm.editarActivo
+      ? _c(
+          "form",
+          {
+            on: {
+              submit: function($event) {
+                $event.preventDefault()
+                return _vm.editarNota(_vm.nota)
               }
-              _vm.$set(_vm.nota, "nombre", $event.target.value)
             }
-          }
-        }),
-        _vm._v(" "),
-        _c("input", {
-          directives: [
-            {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.nota.descripcion,
-              expression: "nota.descripcion"
-            }
-          ],
-          staticClass: "form-control mb-2",
-          attrs: { type: "text", placeholder: "Descripción" },
-          domProps: { value: _vm.nota.descripcion },
-          on: {
-            input: function($event) {
-              if ($event.target.composing) {
-                return
+          },
+          [
+            _c("h3", [_vm._v("Editar Tareas")]),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.nota.nombre,
+                  expression: "nota.nombre"
+                }
+              ],
+              staticClass: "form-control mb-2",
+              attrs: { type: "text", placeholder: "Nombre" },
+              domProps: { value: _vm.nota.nombre },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.nota, "nombre", $event.target.value)
+                }
               }
-              _vm.$set(_vm.nota, "descripcion", $event.target.value)
-            }
-          }
-        }),
-        _vm._v(" "),
-        _c(
-          "button",
-          { staticClass: "btn btn-primary", attrs: { type: "submit" } },
-          [_vm._v("Agregar")]
+            }),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.nota.descripcion,
+                  expression: "nota.descripcion"
+                }
+              ],
+              staticClass: "form-control mb-2",
+              attrs: { type: "text", placeholder: "Descripción" },
+              domProps: { value: _vm.nota.descripcion },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.nota, "descripcion", $event.target.value)
+                }
+              }
+            }),
+            _vm._v(" "),
+            _c(
+              "button",
+              { staticClass: "btn btn-success", attrs: { type: "submit" } },
+              [_vm._v("Guardar")]
+            ),
+            _vm._v(" "),
+            _c(
+              "button",
+              {
+                staticClass: "btn btn-danger",
+                attrs: { type: "submit" },
+                on: {
+                  click: function($event) {
+                    return _vm.cancelarEdicion()
+                  }
+                }
+              },
+              [_vm._v("Cancelar")]
+            )
+          ]
         )
-      ]
-    ),
+      : _c(
+          "form",
+          {
+            on: {
+              submit: function($event) {
+                $event.preventDefault()
+                return _vm.agregar($event)
+              }
+            }
+          },
+          [
+            _c("h3", [_vm._v("Agregar Tarea")]),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.nota.nombre,
+                  expression: "nota.nombre"
+                }
+              ],
+              staticClass: "form-control mb-2",
+              attrs: { type: "text", placeholder: "Nombre" },
+              domProps: { value: _vm.nota.nombre },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.nota, "nombre", $event.target.value)
+                }
+              }
+            }),
+            _vm._v(" "),
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.nota.descripcion,
+                  expression: "nota.descripcion"
+                }
+              ],
+              staticClass: "form-control mb-2",
+              attrs: { type: "text", placeholder: "Descripción" },
+              domProps: { value: _vm.nota.descripcion },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.nota, "descripcion", $event.target.value)
+                }
+              }
+            }),
+            _vm._v(" "),
+            _c(
+              "button",
+              { staticClass: "btn btn-primary", attrs: { type: "submit" } },
+              [_vm._v("Agregar")]
+            )
+          ]
+        ),
     _vm._v(" "),
     _c("hr", { staticClass: "mt-3" }),
     _vm._v(" "),
@@ -37739,6 +37876,19 @@ var render = function() {
               }
             },
             [_vm._v("Eliminar")]
+          ),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-warning btn-sm",
+              on: {
+                click: function($event) {
+                  return _vm.editarFormulario(item)
+                }
+              }
+            },
+            [_vm._v("Editar")]
           )
         ])
       }),
@@ -50072,14 +50222,15 @@ __webpack_require__.r(__webpack_exports__);
 /*!***************************************************!*\
   !*** ./resources/js/components/NotaComponent.vue ***!
   \***************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NotaComponent_vue_vue_type_template_id_49b1c4d4___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./NotaComponent.vue?vue&type=template&id=49b1c4d4& */ "./resources/js/components/NotaComponent.vue?vue&type=template&id=49b1c4d4&");
 /* harmony import */ var _NotaComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NotaComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/NotaComponent.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _NotaComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _NotaComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -50109,7 +50260,7 @@ component.options.__file = "resources/js/components/NotaComponent.vue"
 /*!****************************************************************************!*\
   !*** ./resources/js/components/NotaComponent.vue?vue&type=script&lang=js& ***!
   \****************************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

@@ -1,7 +1,21 @@
 <template>
 	<div>
-		<h3>Agregar Tareas</h3>
-		<form @submit.prevent="agregar">
+		
+		<form @submit.prevent="editarNota(nota)" v-if="editarActivo">
+			<h3>Editar Tareas</h3>
+			<input type="text" placeholder="Nombre"
+			class="form-control mb-2" v-model="nota.nombre">
+
+			<input type="text" placeholder="Descripción"
+			class="form-control mb-2" v-model="nota.descripcion">
+
+			<button class="btn btn-success" type="submit">Guardar</button>
+			<button class="btn btn-danger" type="submit"
+				@click="cancelarEdicion()">Cancelar</button>
+		</form>
+
+		<form @submit.prevent="agregar" v-else>
+			<h3>Agregar Tarea</h3>
 			<input type="text" placeholder="Nombre"
 			class="form-control mb-2" v-model="nota.nombre">
 
@@ -22,6 +36,9 @@
 				<p>{{item.descripcion}}</p>
 				<button class="btn btn-danger btn-sm"
 				@click="eliminarNota(item, index)">Eliminar</button>
+
+				<button class="btn btn-warning btn-sm"
+				@click="editarFormulario(item)">Editar</button>
 			</li>
 		</ul>
 	</div>
@@ -31,7 +48,8 @@ export default{
 	data(){
 		return {
 			notas: [],
-			nota: { nombre: '', descripcion: '' }
+			nota: { nombre: '', descripcion: '' },
+			editarActivo: false
 		}
 	},
 	created(){
@@ -60,6 +78,34 @@ export default{
 			.then(res => {
 				this.notas.push(res.data)
 			});
+		},
+		editarFormulario(item){
+			editarActivo: true;
+			this.nota.nombre = item.nombre;
+			this.nota.descripcion = item.descripcion;
+			this.nota.id = item.id;
+			this.editarActivo = true;
+
+		},
+		editarNota(nota){
+			const params = { nombre: nota.nombre, descripcion: nota.descripcion };
+ 
+			axios.put(`/notas/${nota.id}`, params)
+			.then(res => {
+				this.editarActivo = false;
+				const index = this.notas.findIndex(item => item.id === nota.id);
+				// this.notas[index] = res.data;
+				// 
+				this.nota = {nombres: '', descripcion: ''};
+				axios.get('/notas')
+					.then(res => {
+							this.notas = res.data
+						})
+			})
+		},
+		cancelarEdicion(){
+			this.editarActivo = false;
+			this.nota = {nombres: '', descripcion: ''};
 		},
 		eliminarNota(item, index){
 			axios.delete(`/notas/${item.id}`)
